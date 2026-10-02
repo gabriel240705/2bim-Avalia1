@@ -22,6 +22,6 @@ Framework preset: `None`. Build command: vazio. Build output directory: `public`
 
 ## Identificação (preencha após o fork)
 
-Nome: 
-RA: 
-URL: https://
+Nome: Gabriel Henrique Mendes
+RA: 2026107847
+URL: https://2bim-avalia1-6ry.pages.dev
