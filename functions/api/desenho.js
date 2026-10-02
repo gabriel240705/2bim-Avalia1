@@ -4,14 +4,12 @@ export async function onRequest(context) {
   const request = context.request;
   const env = context.env;
 
-  // 1. Verifica o método
   if (request.method !== "POST") {
     return new Response("Método não permitido.", {
       status: 405
     });
   }
 
-  // 2. Verifica o corpo
   let dados;
 
   try {
@@ -28,7 +26,6 @@ export async function onRequest(context) {
     });
   }
 
-  // 3. Verifica o token
   const authorization = request.headers.get("Authorization");
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -46,25 +43,28 @@ export async function onRequest(context) {
     );
 
     if (!resposta.ok) {
-      return new Response("Token inválido.", {
+      return new Response("Google recusou o token.", {
         status: 401
       });
     }
 
     const usuario = await resposta.json();
-
     const clientId = String(env.GOOGLE_CLIENT_ID || "").trim();
+
+    if (usuario.aud !== clientId) {
+      return new Response(
+        "AUD GOOGLE: " + usuario.aud +
+        "\nCLIENT ID CLOUDFLARE: " + clientId,
+        { status: 401 }
+      );
+    }
 
     const emailVerificado =
       usuario.email_verified === true ||
       usuario.email_verified === "true";
 
-    if (
-      usuario.aud !== clientId ||
-      !emailVerificado ||
-      !usuario.email
-    ) {
-      return new Response("Token inválido.", {
+    if (!emailVerificado) {
+      return new Response("E-mail não verificado.", {
         status: 401
       });
     }
