@@ -34,12 +34,10 @@ formulario.addEventListener("submit", async (evento) => {
   try {
     const resposta = await fetch("/api/desenho", {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${idToken}`
       },
-
       body: JSON.stringify({
         numero: numero
       })
@@ -50,10 +48,10 @@ formulario.addEventListener("submit", async (evento) => {
       return;
     }
 
-   if (resposta.status === 401) {
-  mensagem.textContent = await resposta.text();
-  return;
-}
+    if (resposta.status === 401) {
+      mensagem.textContent = "Autenticação inválida. Faça login novamente.";
+      return;
+    }
 
     if (!resposta.ok) {
       mensagem.textContent = "Não foi possível gerar o desenho.";
@@ -65,7 +63,7 @@ formulario.addEventListener("submit", async (evento) => {
     area.innerHTML = svgAtual;
     botaoBaixar.hidden = false;
 
-  } catch (erro) {
+  } catch {
     mensagem.textContent = "Erro ao comunicar com o servidor.";
   }
 });
