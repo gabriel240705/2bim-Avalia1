@@ -43,28 +43,25 @@ export async function onRequest(context) {
     );
 
     if (!resposta.ok) {
-      return new Response("Google recusou o token.", {
+      return new Response("Token inválido.", {
         status: 401
       });
     }
 
     const usuario = await resposta.json();
-    const clientId = String(env.GOOGLE_CLIENT_ID || "").trim();
 
-    if (usuario.aud !== clientId) {
-      return new Response(
-        "AUD GOOGLE: " + usuario.aud +
-        "\nCLIENT ID CLOUDFLARE: " + clientId,
-        { status: 401 }
-      );
-    }
+    const clientId = String(env.GOOGLE_CLIENT_ID || "").trim();
 
     const emailVerificado =
       usuario.email_verified === true ||
       usuario.email_verified === "true";
 
-    if (!emailVerificado) {
-      return new Response("E-mail não verificado.", {
+    if (
+      usuario.aud !== clientId ||
+      !emailVerificado ||
+      !usuario.email
+    ) {
+      return new Response("Token inválido.", {
         status: 401
       });
     }
