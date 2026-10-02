@@ -4,14 +4,14 @@ export async function onRequest(context) {
   const request = context.request;
   const env = context.env;
 
-  // 1. Método
+  // 1. Verifica o método
   if (request.method !== "POST") {
     return new Response("Método não permitido.", {
       status: 405
     });
   }
 
-  // 2. Corpo
+  // 2. Verifica o corpo
   let dados;
 
   try {
@@ -28,7 +28,7 @@ export async function onRequest(context) {
     });
   }
 
-  // 3. Token
+  // 3. Verifica o token
   const authorization = request.headers.get("Authorization");
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -45,11 +45,11 @@ export async function onRequest(context) {
       encodeURIComponent(token)
     );
 
-   if (!resposta.ok) {
-  return new Response("DEBUG 1 - Google recusou o token.", {
-    status: 401
-  });
-}
+    if (!resposta.ok) {
+      return new Response("Token inválido.", {
+        status: 401
+      });
+    }
 
     const usuario = await resposta.json();
 
@@ -59,11 +59,15 @@ export async function onRequest(context) {
       usuario.email_verified === true ||
       usuario.email_verified === "true";
 
-    if (!resposta.ok) {
-  return new Response("DEBUG 1 - Google recusou o token.", {
-    status: 401
-  });
-}
+    if (
+      usuario.aud !== clientId ||
+      !emailVerificado ||
+      !usuario.email
+    ) {
+      return new Response("Token inválido.", {
+        status: 401
+      });
+    }
 
     const svg = gerarDesenho(dados.numero, usuario.email);
 
