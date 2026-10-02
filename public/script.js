@@ -49,9 +49,9 @@ formulario.addEventListener("submit", async (evento) => {
     }
 
     if (resposta.status === 401) {
-  mensagem.textContent = await resposta.text();
-  return;
-}
+      mensagem.textContent = "Autenticação inválida. Faça login novamente.";
+      return;
+    }
 
     if (!resposta.ok) {
       mensagem.textContent = "Não foi possível gerar o desenho.";
