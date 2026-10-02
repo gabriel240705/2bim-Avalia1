@@ -4,14 +4,14 @@ export async function onRequest(context) {
   const request = context.request;
   const env = context.env;
 
-  // 1. Verifica o método
+  // 1. Método
   if (request.method !== "POST") {
     return new Response("Método não permitido.", {
       status: 405
     });
   }
 
-  // 2. Verifica o corpo da requisição
+  // 2. Corpo
   let dados;
 
   try {
@@ -28,7 +28,7 @@ export async function onRequest(context) {
     });
   }
 
-  // 3. Verifica o token
+  // 3. Token
   const authorization = request.headers.get("Authorization");
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -42,7 +42,7 @@ export async function onRequest(context) {
   try {
     const resposta = await fetch(
       "https://oauth2.googleapis.com/tokeninfo?id_token=" +
-        encodeURIComponent(token)
+      encodeURIComponent(token)
     );
 
     if (!resposta.ok) {
@@ -53,9 +53,16 @@ export async function onRequest(context) {
 
     const usuario = await resposta.json();
 
+    const clientId = String(env.GOOGLE_CLIENT_ID || "").trim();
+
+    const emailVerificado =
+      usuario.email_verified === true ||
+      usuario.email_verified === "true";
+
     if (
-      usuario.aud !== env.GOOGLE_CLIENT_ID ||
-      usuario.email_verified !== "true"
+      usuario.aud !== clientId ||
+      !emailVerificado ||
+      !usuario.email
     ) {
       return new Response("Token inválido.", {
         status: 401
@@ -70,6 +77,7 @@ export async function onRequest(context) {
         "Content-Type": "image/svg+xml"
       }
     });
+
   } catch {
     return new Response("Erro ao verificar o token.", {
       status: 401
