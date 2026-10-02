@@ -45,11 +45,11 @@ export async function onRequest(context) {
       encodeURIComponent(token)
     );
 
-    if (!resposta.ok) {
-      return new Response("Token inválido.", {
-        status: 401
-      });
-    }
+   if (!resposta.ok) {
+  return new Response("DEBUG 1 - Google recusou o token.", {
+    status: 401
+  });
+}
 
     const usuario = await resposta.json();
 
@@ -59,15 +59,11 @@ export async function onRequest(context) {
       usuario.email_verified === true ||
       usuario.email_verified === "true";
 
-    if (
-      usuario.aud !== clientId ||
-      !emailVerificado ||
-      !usuario.email
-    ) {
-      return new Response("Token inválido.", {
-        status: 401
-      });
-    }
+    if (!resposta.ok) {
+  return new Response("DEBUG 1 - Google recusou o token.", {
+    status: 401
+  });
+}
 
     const svg = gerarDesenho(dados.numero, usuario.email);
 
